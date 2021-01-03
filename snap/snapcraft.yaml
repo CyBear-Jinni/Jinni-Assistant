@@ -11,27 +11,34 @@ description: |
 grade: devel # must be 'stable' to release into candidate/stable channels
 confinement: devmode # use 'strict' once you have the right plugs and slots
 
+#build-packages: [python3-dev, python3-setuptools, libtool, libffi-dev, libssl-dev, autoconf, build-essential]
 
 parts:
-  alsa-mixin: # Not working inside snap with root privileges
+  alsa-mixin:
+    build-packages:
+      - libasound2-dev
     plugin: dump
     source: https://github.com/diddlesnaps/snapcraft-alsa.git
     source-subdir: snapcraft-assets
-    build-packages:
-      - libasound2-dev
     stage-packages:
+      - libslang2
       - libasound2
       - libasound2-plugins
+      - libportaudio2
+      - pulseaudio
+      - alsa-utils
+      - yad
 
   jinni:
+    after: [alsa-mixin]
     plugin: dump
     source: .
     override-build: |
       sudo scripts/bashScripts/nativeExecutableMaker.sh  # Downloading dart-sdk for the correct architecture.
 
-      cd scripts/bashScripts/
-      ./compileAllCFiles.sh # Have to be executed when working directory is this file location
-      cd ../..
+      #cd scripts/bashScripts/
+      #./compileAllCFiles.sh # Have to be executed when working directory is this file location
+      #cd ../..
 
       rm -r Assistant
 
@@ -51,14 +58,25 @@ parts:
       - libevent-dev
 
 
+#  python-code:
+#    plugin: python
+#    source: scripts/pythonScripts/voiceAssistence/
+#    python-version: python3
+#    build-packages:
+#      - python3-pip
+#    #stage-packages:
+#    #  - python-six
+
 layout: # Taneling the alsa comands inside the snap to the alsa on the device
   /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
     bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
 
+system-usernames:
+  snap_daemon: shared
 
 apps:
   jinni:
     command-chain: ["snap/command-chain/alsa-launch"]
     command: main.exe $SNAP
-#    daemon: simple
+    #daemon: simple
     plugs: [network, network-bind, gpio, hardware-observe, audio-playback, audio-record, pulseaudio, alsa]

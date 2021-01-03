@@ -5,7 +5,7 @@ class PythonSpeechToText {
 
   PythonSpeechToText() {
     projectPath =
-        '/home/guyl/Documents/programing/git/Smart-Home/SmartDevice/scripts/pythonScripts/voiceAssistance/';
+        '../scripts/pythonScripts/voiceAssistence/';
   }
 
   Future<ProcessResult> listenToVoiceCommand() async {
